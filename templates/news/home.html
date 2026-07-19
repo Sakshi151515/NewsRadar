@@ -1,0 +1,263 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NewsRadar</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+
+        <a class="navbar-brand" href="/">
+            📰 NewsRadar
+        </a>
+
+        <div>
+
+            {% if user.is_authenticated %}
+
+                <a href="{% url 'profile' %}" class="btn btn-info me-2">
+                    👤 Profile
+                </a>
+
+                <a href="{% url 'bookmarks' %}" class="btn btn-warning me-2">
+                    ⭐ My Bookmarks
+                </a>
+
+                <a href="{% url 'logout' %}" class="btn btn-danger">
+                    Logout
+                </a>
+
+            {% else %}
+
+                <a href="{% url 'login' %}" class="btn btn-primary me-2">
+                    Login
+                </a>
+
+                <a href="{% url 'register' %}" class="btn btn-success">
+                    Register
+                </a>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+</nav>
+
+<!-- Search + Category Filter -->
+<div class="container mt-4">
+
+    <form method="GET">
+
+        <div class="row">
+
+            <div class="col-md-5 mb-2">
+                <input
+                    type="text"
+                    class="form-control"
+                    name="q"
+                    placeholder="Search News..."
+                    value="{{ query|default:'' }}">
+            </div>
+
+            <div class="col-md-4 mb-2">
+
+                <select name="category" class="form-select">
+
+                    <option value="">All Categories</option>
+
+                    {% for category in categories %}
+
+                    <option value="{{ category.id }}"
+                    {% if selected_category == category.id|stringformat:"s" %}
+                    selected
+                    {% endif %}>
+
+                        {{ category.name }}
+
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+            <div class="col-md-3 mb-2">
+
+                <button class="btn btn-success w-100" type="submit">
+                    Search / Filter
+                </button>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+<!-- BBC Live News -->
+<div class="container mt-5">
+
+    <h2 class="text-center text-danger mb-4">
+        🌍 BBC Live News
+    </h2>
+
+    <div class="row">
+
+        {% for news in live_news %}
+
+        <div class="col-md-6 mb-4">
+
+            <div class="card shadow h-100">
+
+                <div class="card-body">
+
+                    <h5>{{ news.title }}</h5>
+
+                    <p>
+                        {{ news.description|safe|truncatewords:25 }}
+                    </p>
+
+                    <a href="{{ news.link }}"
+                       target="_blank"
+                       class="btn btn-danger">
+
+                        Read BBC News
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% empty %}
+
+        <div class="col-12">
+
+            <h4 class="text-center text-danger">
+                No Live News Available
+            </h4>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+<!-- Latest News -->
+<div class="container mt-5">
+
+    <h2 class="text-center mb-4">
+        📰 Latest News
+    </h2>
+
+    <div class="row">
+
+        {% for article in articles %}
+
+        <div class="col-md-4 mb-4">
+
+            <div class="card shadow h-100">
+
+                {% if article.image %}
+
+                <img src="{{ article.image.url }}"
+                     class="card-img-top"
+                     height="220"
+                     alt="{{ article.title }}">
+
+                {% endif %}
+
+                <div class="card-body d-flex flex-column">
+
+                    <h5 class="card-title">
+                        {{ article.title }}
+                    </h5>
+
+                    <span class="badge bg-primary mb-3">
+                        {{ article.category.name }}
+                    </span>
+
+                    <p class="flex-grow-1">
+                        {{ article.description|truncatewords:20 }}
+                    </p>
+
+                    <div class="d-flex justify-content-between">
+
+                        <a href="{{ article.url }}"
+                           target="_blank"
+                           class="btn btn-primary">
+
+                            Read More
+
+                        </a>
+
+                        {% if user.is_authenticated %}
+
+                        <a href="{% url 'bookmark' article.id %}"
+                           class="btn btn-warning">
+
+                            ⭐ Bookmark
+
+                        </a>
+
+                        {% else %}
+
+                        <a href="{% url 'login' %}"
+                           class="btn btn-warning">
+
+                            Login to Bookmark
+
+                        </a>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% empty %}
+
+        <div class="col-12">
+
+            <h3 class="text-center text-danger">
+                No News Found
+            </h3>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+</div>
+
+<footer class="bg-dark text-white text-center p-3 mt-5">
+    © 2026 NewsRadar | Django + MySQL + Bootstrap
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
